@@ -1,142 +1,326 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema Histórico Interactivo</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Meta tags CRÍTICAS para WhatsApp -->
+    <meta property="og:title" content="Carlos Fonseca Amador | Archivo Histórico Digital">
+    <meta property="og:description" content="1936 - 1976 | Héroe Nacional de Nicaragua. Archivo histórico digital con asistentes de IA. 'Y también enséñales a leer'">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=1200&h=630&fit=crop">
+    <meta property="og:url" content="https://tusitio.netlify.app">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <title>Carlos Fonseca Amador | Archivo Histórico Digital</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Animaciones personalizadas */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
+        
+        /* Scroll suave */
+        html { scroll-behavior: smooth; }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(to right, #fff, #f9a8d4, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-text-pink {
+            background: linear-gradient(to right, #ec4899, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Chat bubbles */
+        .chat-bubble-user {
+            background: linear-gradient(to right, #9333ea, #7c3aed);
+            color: white;
+            border-radius: 1rem 1rem 0.25rem 1rem;
+        }
+        
+        .chat-bubble-agent {
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #1f2937;
+            border-radius: 1rem 1rem 1rem 0.25rem;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white min-h-screen overflow-x-hidden">
 
-<!-- 🔷 PANTALLA DE CARGA -->
-<div id="loader">
-    <div class="loader-content">
-        <h1>Sistema de Archivo Histórico</h1>
-        <p>Cargando registros estratégicos...</p>
-    </div>
-</div>
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-40 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-pink-500 to-violet-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight">Fonseca Legacy</span>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-1">
+                    <button onclick="scrollToSection('inicio')" class="px-4 py-2 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">Inicio</button>
+                    <button onclick="scrollToSection('biografia')" class="px-4 py-2 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">Biografía</button>
+                    <button onclick="scrollToSection('archivo')" class="px-4 py-2 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">Archivo</button>
+                    <button onclick="scrollToSection('obras')" class="px-4 py-2 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">Obras</button>
+                    <button onclick="scrollToSection('timeline')" class="px-4 py-2 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">Timeline</button>
+                </div>
 
-<!-- 🔷 CONTENEDOR PRINCIPAL -->
-<div id="app" class="hidden">
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg hover:bg-white/10">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
 
-    <!-- 🔷 HEADER -->
-    <header>
-        <h1>Archivo Histórico Interactivo</h1>
-        <p>Vida y Legado de Carlos Fonseca Amador</p>
-    </header>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-black/20 backdrop-blur-xl border-t border-white/10">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <button onclick="scrollToSection('inicio')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                    <i data-lucide="book-open" class="w-4 h-4"></i> Inicio
+                </button>
+                <button onclick="scrollToSection('biografia')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                    <i data-lucide="user" class="w-4 h-4"></i> Biografía
+                </button>
+                <button onclick="scrollToSection('archivo')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                    <i data-lucide="archive" class="w-4 h-4"></i> Archivo
+                </button>
+                <button onclick="scrollToSection('obras')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                    <i data-lucide="book-open" class="w-4 h-4"></i> Obras
+                </button>
+                <button onclick="scrollToSection('timeline')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Timeline
+                </button>
+            </div>
+        </div>
+    </nav>
 
-    <!-- 🔷 MENÚ PRINCIPAL -->
-    <section id="menu">
+    <!-- HERO SECTION -->
+    <section id="inicio" class="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
+        <!-- Fondos animados -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-pink-600/30 to-purple-600/30 rounded-full blur-3xl animate-pulse-glow"></div>
+            <div class="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-blue-600/30 to-cyan-600/30 rounded-full blur-3xl animate-pulse-glow" style="animation-delay: 2s;"></div>
+        </div>
 
-        <button onclick="openSection('origen')">🧒 Origen y Formación</button>
-        <button onclick="openSection('excelencia')">🎓 Excelencia Académica</button>
-        <button onclick="openSection('ideologia')">⚔️ Evolución Ideológica</button>
-        <button onclick="openSection('obras')">📚 Obras y Pensamiento</button>
-        <button onclick="openSection('internacional')">🌎 Proyección Internacional</button>
-        <button onclick="openSection('estrategia')">🧠 Aportes Estratégicos</button>
-        <button onclick="openSection('perfil')">👤 Perfil y Curiosidades</button>
-        <button onclick="openSection('timeline')">🗺️ Línea de Tiempo</button>
-        <button onclick="openSection('quiz')">📝 Evaluación Interactiva</button>
+        <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-float">
+                <i data-lucide="sparkles" class="w-4 h-4 text-pink-400"></i>
+                <span class="text-sm font-medium text-pink-200">Archivo Histórico Digital 2.0</span>
+            </div>
 
+            <!-- Título Principal -->
+            <h1 class="text-6xl sm:text-7xl md:text-8xl font-black mb-4 tracking-tight">
+                <span class="gradient-text">Carlos Fonseca</span>
+            </h1>
+            
+            <h2 class="text-5xl sm:text-6xl md:text-7xl font-black mb-8 tracking-tight">
+                <span class="gradient-text-pink">Amador</span>
+            </h2>
+
+            <!-- Años y Subtítulo -->
+            <div class="flex items-center justify-center gap-4 mb-6 flex-wrap">
+                <span class="text-2xl sm:text-3xl font-light text-white/90">1936 - 1976</span>
+                <span class="text-white/40">|</span>
+                <span class="text-xl sm:text-2xl font-medium text-pink-300">Héroe Nacional de Nicaragua</span>
+            </div>
+
+            <p class="text-xl sm:text-2xl text-white/80 font-light mb-12">Archivo Histórico Digital</p>
+
+            <!-- Cita -->
+            <div class="relative max-w-3xl mx-auto mb-12">
+                <div class="absolute -top-4 -left-4 text-6xl text-pink-500/30 font-serif">"</div>
+                <blockquote class="text-2xl sm:text-3xl md:text-4xl font-medium italic text-white/90 leading-relaxed px-8">
+                    Y también enséñales a leer
+                </blockquote>
+                <div class="absolute -bottom-4 -right-4 text-6xl text-pink-500/30 font-serif rotate-180">"</div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="scrollToSection('archivo')" class="group px-8 py-4 bg-gradient-to-r from-pink-500 to-violet-600 rounded-full font-semibold text-lg shadow-lg hover:shadow-pink-500/25 transition-all duration-300 hover:scale-105 flex items-center gap-2">
+                    Explorar Archivo
+                    <i data-lucide="chevron-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+                <button onclick="scrollToSection('biografia')" class="px-8 py-4 glass rounded-full font-semibold text-lg hover:bg-white/20 transition-all duration-300">
+                    Conocer su Historia
+                </button>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
+                <div class="w-1 h-2 bg-white/50 rounded-full animate-pulse"></div>
+            </div>
+        </div>
     </section>
 
-</div>
+    <!-- BIOGRAFÍA -->
+    <section id="biografia" class="py-24 px-4 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="user" class="w-6 h-6 text-white"></i>
+                </div>
+                <h2 class="text-4xl font-bold">Biografía</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass rounded-3xl p-8 hover:border-pink-500/30 transition-all duration-300 hover:transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold mb-4 text-pink-300">Primeros Años</h3>
+                    <p class="text-white/70 leading-relaxed">
+                        Nacido el 23 de junio de 1936 en Matagalpa, Nicaragua. Hijo de Augusto Fonseca y Faustina Amador, 
+                        creció en un ambiente de lucha social desde temprana edad, influenciado por la resistencia contra la ocupación estadounidense.
+                    </p>
+                </div>
+                <div class="glass rounded-3xl p-8 hover:border-purple-500/30 transition-all duration-300 hover:transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold mb-4 text-purple-300">Formación Política</h3>
+                    <p class="text-white/70 leading-relaxed">
+                        Estudiante de Derecho en la Universidad de Managua, donde fundó la Federación de Estudiantes 
+                        de Nicaragua (FEN) y comenzó su activismo revolucionario contra la dictadura de Somoza.
+                    </p>
+                </div>
+                <div class="glass rounded-3xl p-8 hover:border-blue-500/30 transition-all duration-300 hover:transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold mb-4 text-blue-300">Fundación del FSLN</h3>
+                    <p class="text-white/70 leading-relaxed">
+                        En 1961, junto a Tomás Borge y Silvio Mayorga, fundó el Frente Sandinista de Liberación Nacional (FSLN) 
+                        en Tegucigalpa, Honduras, marcando el inicio de la lucha armada organizada.
+                    </p>
+                </div>
+                <div class="glass rounded-3xl p-8 hover:border-emerald-500/30 transition-all duration-300 hover:transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold mb-4 text-emerald-300">Legado Eterno</h3>
+                    <p class="text-white/70 leading-relaxed">
+                        Su captura y asesinato el 8 de noviembre de 1976 no detuvo la revolución. Tres años después, 
+                        el FSLN triunfó, cumpliendo el sueño de liberación nacional que Fonseca dedicó su vida.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<!-- 🔷 SECCIONES A PANTALLA COMPLETA -->
+    <!-- ARCHIVO HISTÓRICO -->
+    <section id="archivo" class="py-24 px-4 relative bg-black/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="archive" class="w-6 h-6 text-white"></i>
+                </div>
+                <h2 class="text-4xl font-bold">Archivo Histórico Digital</h2>
+            </div>
 
-<div class="section hidden" id="origen">
-    <h2>Origen y Formación</h2>
-    <div class="image-placeholder">Espacio para imagen histórica</div>
-    <p>Nacimiento: 23 de junio de 1936 en el barrio El Laborío, Matagalpa.</p>
-    <p>Padres: Justina Fonseca y Fausto Amador.</p>
-    <p>Desde niño ayudó vendiendo caramelos y periódicos.</p>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="group glass rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:transform hover:scale-105" onclick="openAgent('guide')">
+                    <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Cartas Personales</h3>
+                    <p class="text-white/60 text-sm mb-3">127 documentos</p>
+                    <p class="text-xs text-pink-400">💬 Pregunta al Agente Guía</p>
+                </div>
 
-<div class="section hidden" id="excelencia">
-    <h2>Excelencia Académica</h2>
-    <div class="image-placeholder">Espacio para imagen histórica</div>
-    <p>Mejor bachiller del Instituto Nacional del Norte (1955).</p>
-    <p>Distinción “Estrella de Oro”.</p>
-    <p>Ingresó a Derecho en UNAN-León.</p>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
+                <div class="group glass rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:transform hover:scale-105" onclick="openAgent('guide')">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Manuscritos</h3>
+                    <p class="text-white/60 text-sm mb-3">45 originales</p>
+                    <p class="text-xs text-purple-400">💬 Pregunta al Agente Guía</p>
+                </div>
 
-<div class="section hidden" id="ideologia">
-    <h2>Evolución Ideológica</h2>
-    <div class="image-placeholder">Espacio para imagen histórica</div>
-    <p>Etapa Estudiantil (1954-1956).</p>
-    <p>Etapa Formación Exterior (1957-1960).</p>
-    <p>Etapa Consolidación (1961-1976).</p>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
+                <div class="group glass rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:transform hover:scale-105" onclick="openAgent('guide')">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="image" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Fotografías</h3>
+                    <p class="text-white/60 text-sm mb-3">203 imágenes</p>
+                    <p class="text-xs text-blue-400">💬 Pregunta al Agente Guía</p>
+                </div>
 
-<div class="section hidden" id="obras">
-    <h2>Obras y Pensamiento</h2>
-    <div class="image-placeholder">Espacio para imagen histórica</div>
-    <p>Un Nicaragüense en Moscú (1958).</p>
-    <p>Desde la cárcel yo acuso a la dictadura (1964).</p>
-    <p>Nicaragua: Hora Cero (1969).</p>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
+                <div class="group glass rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:transform hover:scale-105" onclick="openAgent('historian')">
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Discursos</h3>
+                    <p class="text-white/60 text-sm mb-3">38 grabaciones</p>
+                    <p class="text-xs text-emerald-400">💬 Pregunta al Historiador</p>
+                </div>
 
-<div class="section hidden" id="internacional">
-    <h2>Proyección Internacional</h2>
-    <div class="image-placeholder">Espacio para imagen histórica</div>
-    <p>VI Festival Mundial de la Juventud en la URSS.</p>
-    <p>Relación con Cuba.</p>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
+                <div class="group glass rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:transform hover:scale-105" onclick="openAgent('historian')">
+                    <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="archive" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Documentos FSLN</h3>
+                    <p class="text-white/60 text-sm mb-3">89 archivos</p>
+                    <p class="text-xs text-amber-400">💬 Pregunta al Historiador</p>
+                </div>
 
-<div class="section hidden" id="estrategia">
-    <h2>Aportes Estratégicos</h2>
-    <div class="image-placeholder">Espacio para imagen histórica</div>
-    <p>Programa Histórico del FSLN (1969).</p>
-    <p>Mensaje al Pueblo de Nicaragua.</p>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
+                <div class="group glass rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:transform hover:scale-105" onclick="openAgent('historian')">
+                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Material Educativo</h3>
+                    <p class="text-white/60 text-sm mb-3">56 recursos</p>
+                    <p class="text-xs text-red-400">💬 Pregunta al Historiador</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div class="section hidden" id="perfil">
-    <h2>Perfil y Curiosidades</h2>
-    <div class="image-placeholder">Espacio para imagen histórica</div>
-    <p>Seudónimo: Agatón.</p>
-    <p>Padecía miopía severa.</p>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
+    <!-- OBRAS -->
+    <section id="obras" class="py-24 px-4 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
+                </div>
+                <h2 class="text-4xl font-bold">Obras Fundamentales</h2>
+            </div>
 
-<div class="section hidden" id="timeline">
-    <h2>Línea de Tiempo</h2>
-    <div class="timeline">
-        <div>1936 - Nacimiento</div>
-        <div>1955 - Mejor Bachiller</div>
-        <div>1961 - Fundación FSLN</div>
-        <div>1969 - Programa Histórico</div>
-        <div>1976 - Fallecimiento</div>
-        <div>1980 - Héroe Nacional</div>
-    </div>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
-
-<div class="section hidden" id="quiz">
-    <h2>Evaluación Interactiva</h2>
-    <div id="quiz-container"></div>
-    <button onclick="goBack()">🔙 Regresar</button>
-</div>
-
-<!-- 🔷 BOTÓN AGENTE IA -->
-<button id="aiButton" onclick="toggleAI()">🤖</button>
-
-<div id="aiChat" class="hidden">
-    <div id="chatMessages"></div>
-    <input type="text" id="userInput" placeholder="Pregunta sobre la historia...">
-    <button onclick="askAI()">Enviar</button>
-</div>
-
-<script src="app.js"></script>
-<script src="quiz.js"></script>
-<script src="ai_agent.js"></script>
-
-</body>
-</html>
+            <div class="space-y-6">
+                <div class="flex items-center gap-6 glass rounded-2xl p-6 hover:border-emerald-500/30 transition-all group cursor-pointer" onclick="openAgent('historian')">
+                    <div class="w-16 h-20 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                        <i data-lucide="book-open" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold text-emerald-300 mb-1">Un Nicaragüense en Moscú</h3>
+                        <p class="text-white/60 text-sm mb-2">Crónicas de su viaje a la URSS como estudiante</p>
+                        <span class="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full">1958</span>
+                    </div>
+                    <button class="p-3 bg-white/10 rounded-full hover:bg-emerald-500/20 transition-colors">
+                        <i data-lucide="chevron-right" class="
